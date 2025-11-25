@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>متجر غيمة 'ﮮ</title>
+<link rel="icon" href="ghayma_logo_sm.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<style>
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    background: linear-gradient(135deg, #ff6e40, #9b59b6, #d2527f, #f1c40f);
+    background-size: 800% 800%;
+    animation: rgbFlow 25s ease infinite;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    color: #fff;
+    position: relative;
+}
+
+@keyframes rgbFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.container {
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(12px);
+    padding: 30px;
+    border-radius: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    width: 350px;
+    text-align: center;
+    animation: fadeIn 1s ease;
+    transition: box-shadow 0.3s, transform 0.3s;
+    z-index: 10;
+    position: relative;
+}
+
+.container:hover {
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    transform: translateY(-5px);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    font-weight: 600;
+    margin-bottom: 20px;
+    font-size: 28px;
+    text-shadow: 0 0 8px rgba(255,255,255,0.7), 0 0 15px rgba(255,159,28,0.5);
+}
+
+.icon img {
+    width: 160px;
+    height: auto;
+    filter: drop-shadow(0 0 15px rgba(0,0,0,0.7));
+}
+
+input {
+    width: 90%;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    margin-bottom: 15px;
+    text-align: center;
+    font-size: 16px;
+    transition: 0.3s;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+input:focus {
+    outline: none;
+    box-shadow: 0 0 15px #ff9f1c;
+    background: rgba(255,255,255,0.2);
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    background: #ff9f1c;
+    color: #000;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+}
+
+button:hover {
+    transform: scale(1.05) rotate(-2deg);
+    background: #ffa928;
+}
+
+.result-box {
+    margin-top: 20px;
+    font-size: 24px;
+    font-weight: 600;
+    background: rgba(255,255,255,0.15);
+    padding: 15px;
+    border-radius: 10px;
+    color: #fff;
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.result-box:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+}
+
+.result-letters {
+    margin-top: 15px;
+    font-size: 20px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 10px;
+    color: #fff;
+    text-shadow: 0 0 3px rgba(255,255,255,0.5);
+}
+
+@keyframes logoPulse {0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+@keyframes logoBounce {0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes logoSpin {0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+.cloud {
+    position: absolute;
+    opacity: 0.7;
+    pointer-events: none;
+    filter: brightness(2) drop-shadow(0 0 10px rgba(255,255,255,0.5));
+    transition: transform linear;
+}
+
+@media (max-width: 600px) {
+    .container { width: 90%; padding: 20px; }
+    h2 { font-size: 22px; }
+    .icon img { width: 120px; }
+    .result-box { font-size: 20px; }
+    .result-letters { font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div id="cloudLayer"></div>
+
+<div class="container">
+    <div class="icon">
+        <img id="logo" src="ghayma_logo.png" alt="Logo">
+    </div>
+    <h2>متجر غيمة 'ﮮ</h2>
+    <input type="text" id="usd" placeholder="$ أدخل كمية ال" oninput="calc()">
+    <div class="result-box" id="result">0 د.ج</div>
+    <div class="result-letters" id="resultLetters">صفر</div>
+    <button onclick="copyResult()">انسخ</button>
+</div>
+
+<script>
+let countInterval;
+
+const logo = document.getElementById('logo');
+const animations = ['logoPulse 2s infinite','logoBounce 1.5s infinite','logoSpin 3s linear infinite'];
+logo.style.animation = animations[Math.floor(Math.random()*animations.length)];
+
+function numberToWords(num){
+    if(num === 0) return 'صفر';
+
+    const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+    const teens = ['عشرة','أحد عشر','اثنا عشر','ثلاثة عشر','أربعة عشر','خمسة عشر','ستة عشر','سبعة عشر','ثمانية عشر','تسعة عشر'];
+    const tens = ['', '', 'عشرون','ثلاثون','أربعون','خمسون','ستون','سبعون','ثمانون','تسعون'];
+    const hundreds = ['', 'مئة','مئتان','ثلاثمئة','أربعمئة','خمسمئة','ستمئة','سبعمئة','ثمانمئة','تسعمئة'];
+
+    function joinArabic(parts){
+        return parts.filter(p => p).join(' و ');
+    }
+
+    function helper(n){
+        let parts = [];
+
+        // Millions
+        if(n >= 1000000){
+            const millions = Math.floor(n / 1000000);
+            if(millions === 1) parts.push('مليون');
+            else if(millions === 2) parts.push('مليونان');
+            else parts.push(helper(millions) + ' ملايين');
+            n %= 1000000;
+        }
+
+        // Thousands
+        if(n >= 1000){
+            const thousands = Math.floor(n / 1000);
+            if(thousands === 1) parts.push('ألف');
+            else if(thousands === 2) parts.push('ألفان');
+            else parts.push(helper(thousands) + ' ألفا'); // always ألفا for >2
+            n %= 1000;
+        }
+
+        // Hundreds
+        if(n >= 100){
+            const h = Math.floor(n / 100);
+            parts.push(hundreds[h]);
+            n %= 100;
+        }
+
+        // Tens and Units
+        if(n >= 20){
+            const t = Math.floor(n / 10);
+            const u = n % 10;
+            if(u !== 0) parts.push(units[u] + ' و' + tens[t]);
+            else parts.push(tens[t]);
+        } else if(n >= 10){
+            parts.push(teens[n - 10]);
+        } else if(n > 0){
+            parts.push(units[n]);
+        }
+
+        return joinArabic(parts);
+    }
+
+    return helper(num);
+}
+
+
+function calc(){
+    let input=document.getElementById('usd').value;
+    input=input.replace(/[^0-9.]/g,'');
+    const parts=input.split('.');
+    if(parts.length>2) input=parts[0]+'.'+parts[1];
+    document.getElementById('usd').value=input;
+    if(countInterval) clearInterval(countInterval);
+    const usd=parseFloat(input);
+    if(isNaN(usd)||usd===0){
+        document.getElementById('result').textContent="0 د.ج";
+        document.getElementById('resultLetters').textContent="صفر";
+        return;
+    }
+    const total=usd*310;
+    let current=0;
+    const increment=Math.ceil(total/50);
+    countInterval=setInterval(()=>{
+        current+=increment;
+        if(current>=total){current=total;clearInterval(countInterval);}
+        document.getElementById('result').textContent=`${current.toLocaleString()} د.ج`;
+        document.getElementById('resultLetters').textContent=numberToWords(current*100);
+    },20);
+    confetti({particleCount:3,spread:50,origin:{y:0.6},decay:0.9,gravity:0.7});
+}
+
+function copyResult(){
+    navigator.clipboard.writeText(document.getElementById('result').textContent);
+    alert('Copied: '+document.getElementById('result').textContent);
+}
+
+const cloudLayer = document.getElementById("cloudLayer");
+const cloudImages = ["cloud1.png","cloud2.png","cloud3.png"];
+
+function spawnCloud() {
+    const cloud = document.createElement("img");
+    cloud.src = cloudImages[Math.floor(Math.random() * cloudImages.length)];
+    cloud.className = "cloud";
+
+    const size = Math.random() * 150 + 300;
+    cloud.style.width = size + "px";
+    cloud.style.top = (Math.random() * 60 + 20) + "%";
+    cloud.style.opacity = (Math.random() * 0.25 + 0.6).toFixed(2);
+    cloud.style.left = "-" + size + "px";
+    cloud.style.transition = `transform ${20 + Math.random() * 20}s linear`; 
+
+    cloudLayer.appendChild(cloud);
+
+    // Trigger movement
+    setTimeout(() => {
+        cloud.style.transform = `translateX(${window.innerWidth + size}px)`;
+    }, 50);
+
+    // Remove after animation duration
+    setTimeout(() => {
+        cloud.remove();
+    }, (20 + Math.random() * 20) * 1000); 
+}
+
+// Spawn 3 clouds initially
+for (let i = 0; i < 3; i++) spawnCloud();
+
+// Spawn a cloud every 4 seconds
+setInterval(spawnCloud, 4000);
+</script>
+</body>
+</html>
